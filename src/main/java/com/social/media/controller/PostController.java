@@ -53,7 +53,7 @@ public class PostController {
         return ResponseEntity.ok(post);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/post/{id}")
     public ResponseEntity<?> getPost(@PathVariable Long id) {
         return postRepo.findById(id)
                 .map(ResponseEntity::ok)
@@ -89,7 +89,7 @@ public class PostController {
 
         User user = userRepo.findByUsername(auth.getName()).get();
 
-        var like = likeRepo.findByUserAndPost(user, post);
+        Optional<Like> like = likeRepo.findByUserAndPost(user, post);
         if (!like.isPresent())
             return ResponseEntity.badRequest().body("Not liked");
 

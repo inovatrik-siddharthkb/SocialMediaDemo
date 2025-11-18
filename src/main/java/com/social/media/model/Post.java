@@ -1,7 +1,6 @@
 package com.social.media.model;
 
 import javax.persistence.*;
-import javax.print.attribute.standard.Media;
 
 import java.util.*;
 

@@ -1,5 +1,7 @@
 package com.social.media.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -55,14 +57,14 @@ public class FollowController {
 
     @GetMapping("/{username}/followers")
     public ResponseEntity<?> followers(@PathVariable String username) {
-        var u = userRepo.findByUsername(username);
+    	Optional<User> u = userRepo.findByUsername(username);
         if (!u.isPresent()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(u.get().getFollowers());
     }
 
     @GetMapping("/{username}/following")
     public ResponseEntity<?> following(@PathVariable String username) {
-        var u = userRepo.findByUsername(username);
+    	Optional<User> u = userRepo.findByUsername(username);
         if (!u.isPresent()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(u.get().getFollowing());
     }
