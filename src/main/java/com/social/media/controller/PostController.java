@@ -45,7 +45,7 @@ public class PostController {
                 else if (ct.startsWith("audio")) type = com.social.media.model.MediaType.AUDIO;
                 else type = com.social.media.model.MediaType.IMAGE;
 
-                Media m = new Media(post, stored, "/media/files/" + stored, type);
+                Media m = new Media(post, stored, "/files/" + stored, type);
                 mediaRepo.save(m);
             }
         }
@@ -53,7 +53,7 @@ public class PostController {
         return ResponseEntity.ok(post);
     }
 
-    @GetMapping("/post/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getPost(@PathVariable Long id) {
         return postRepo.findById(id)
                 .map(ResponseEntity::ok)
