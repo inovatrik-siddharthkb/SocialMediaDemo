@@ -20,9 +20,6 @@ public class User {
     private String username;
 
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
     
     @ManyToMany
     @JoinTable(
@@ -40,12 +37,11 @@ public class User {
 
     public User() {}
 
-    public User(String name, String email, String username, String password, Role role) {
+    public User(String name, String email, String username, String password) {
         this.name = name;
         this.email = email;
         this.username = username;
         this.password = password;
-        this.role = role;
     }
 
     public Long getId() { return id; }
@@ -61,8 +57,5 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String p) { this.password = p; }
-
-    public Role getRole() { return role; }
-    public void setRole(Role r) { this.role = r; }
 
 }

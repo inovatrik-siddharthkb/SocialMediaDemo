@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Login — Social</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6 col-lg-4">
+        <div class="card p-4">
+          <h3 class="card-title text-center">Welcome back</h3>
+          <div id="alert" class="alert d-none"></div>
+          <form id="loginForm">
+            <div class="mb-3">
+              <input id="username" class="form-control" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+              <input id="password" type="password" class="form-control" placeholder="Password" required>
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Login</button>
+          </form>
+
+          <hr>
+          <div class="text-center">
+            <a href="/register">Create account</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

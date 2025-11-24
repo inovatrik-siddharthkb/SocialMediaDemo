@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Register</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/styles.css" rel="stylesheet">
+    </head>
+    <body class="bg-light">
+        <div class="container">
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card p-4">
+                        <h3 class="card-title text-center">Create an account</h3>
+                        <div id="alert" class="alert d-none"></div>
+                        <form id="registerForm">
+                            <div class="mb-2">
+                                <input id="name" class="form-control" placeholder="Name" required>
+                            </div>
+                            <div class="mb-2">
+                                <input id="email" class="form-control" placeholder="Email" required>
+                            </div>
+                            <div class="mb-2">
+                                <input id="username" class="form-control" placeholder="Username" required>
+                            </div>
+                            <div class="mb-3">
+                                <input id="password" type="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <button class="btn btn-primary w-100" type="submit">Register</button
+                        </form>
+
+                        <hr>
+                        <div class="text-center">
+                            <a href="/login">Already have an account? Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/js/app.js"></script>
+    </body>
+</html>

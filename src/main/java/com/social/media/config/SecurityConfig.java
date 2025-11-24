@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-                .antMatchers("/api/auth/**", "/health").permitAll()
+                .antMatchers("/api/auth/**", "/health", "/login", "/register", "/css/**", "/js/**", "/images/**", "/", "/feed").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

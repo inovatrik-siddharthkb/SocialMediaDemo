@@ -46,6 +46,7 @@ public class PostController {
                 else type = com.social.media.model.MediaType.IMAGE;
 
                 Media m = new Media(post, stored, "/files/" + stored, type);
+
                 mediaRepo.save(m);
             }
         }

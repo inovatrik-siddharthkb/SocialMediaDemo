@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.social.media.dto.LoginRequest;
 import com.social.media.dto.LoginResponse;
 import com.social.media.dto.RegisterRequest;
-import com.social.media.model.Role;
 import com.social.media.model.User;
 import com.social.media.repository.UserRepository;
 import com.social.media.config.JwtUtils;
@@ -40,7 +39,6 @@ public class AuthService {
         u.setName(req.name);
         u.setUsername(req.username);
         u.setPassword(encoder.encode(req.password));
-        u.setRole(Role.valueOf(req.role.toUpperCase()));
 
         repo.save(u);
         return "User registered successfully!";
@@ -56,7 +54,7 @@ public class AuthService {
 
         String token = jwt.generateToken(user.getUsername());
 
-        return new LoginResponse(token, user.getUsername(), user.getRole().name());
+        return new LoginResponse(token, user.getUsername());
     }
 
 }

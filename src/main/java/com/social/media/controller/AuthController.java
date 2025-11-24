@@ -41,8 +41,7 @@ public class AuthController {
                 req.getName(),
                 req.getEmail(),
                 req.getUsername(),
-                encoder.encode(req.getPassword()),
-                req.getRole() == null ? Role.COMMON : req.getRole()
+                encoder.encode(req.getPassword())
         );
 
         repo.save(u);
@@ -81,7 +80,6 @@ public class AuthController {
 
     public static class RegisterRequest {
         private String name, email, username, password;
-        private Role role;
 
         public String getName() { return name; }
         public void setName(String n) { name = n; }
@@ -94,9 +92,6 @@ public class AuthController {
 
         public String getPassword() { return password; }
         public void setPassword(String p) { password = p; }
-
-        public Role getRole() { return role; }
-        public void setRole(Role r) { role = r; }
     }
 
     public static class LoginRequest {
