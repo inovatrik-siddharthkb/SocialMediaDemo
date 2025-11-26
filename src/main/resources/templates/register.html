@@ -1,43 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Register</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link href="/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/css/styles.css" rel="stylesheet">
-    </head>
-    <body class="bg-light">
-        <div class="container">
-            <div class="row justify-content-center mt-5">
-                <div class="col-md-6 col-lg-4">
-                    <div class="card p-4">
-                        <h3 class="card-title text-center">Create an account</h3>
-                        <div id="alert" class="alert d-none"></div>
-                        <form id="registerForm">
-                            <div class="mb-2">
-                                <input id="name" class="form-control" placeholder="Name" required>
-                            </div>
-                            <div class="mb-2">
-                                <input id="email" class="form-control" placeholder="Email" required>
-                            </div>
-                            <div class="mb-2">
-                                <input id="username" class="form-control" placeholder="Username" required>
-                            </div>
-                            <div class="mb-3">
-                                <input id="password" type="password" class="form-control" placeholder="Password" required>
-                            </div>
-                            <button class="btn btn-primary w-100" type="submit">Register</button
-                        </form>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register for SocialApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
+        .register-card { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
 
-                        <hr>
-                        <div class="text-center">
-                            <a href="/login">Already have an account? Login</a>
-                        </div>
-                    </div>
+    <div class="max-w-lg w-full p-4 md:p-8">
+        <h1 class="text-4xl font-bold text-blue-600 mb-2 text-center">Create Your Account</h1>
+        <p class="text-lg text-center text-gray-500 mb-8">It's quick and easy.</p>
+
+        <div class="register-card bg-white rounded-xl p-6 space-y-4">
+            <form id="regForm" onsubmit="handleRegister(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="text" name="name" placeholder="Name" required
+                           class="w-full h-10 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
+                    <input type="text" name="username" placeholder="Username" required
+                           class="w-full h-10 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
                 </div>
-            </div>
+                <input type="email" name="email" placeholder="Email Address" required
+                       class="w-full h-10 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
+                <input type="password" name="password" placeholder="New Password" required
+                       class="w-full h-10 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
+                
+                <p class="text-xs text-gray-500">By clicking Sign Up, you agree to our Terms, Data Policy and Cookie Policy.</p>
+
+                <button type="submit"
+                        class="w-1/2 mx-auto block py-3 bg-green-500 text-white font-bold text-xl rounded-lg hover:bg-green-600 transition duration-150">
+                    Sign Up
+                </button>
+                <p id="error-msg" class="text-red-500 text-center text-sm hidden">Registration failed.</p>
+            </form>
+
+            <div class="h-px bg-gray-200"></div>
+
+            <a th:href="@{/login}" class="block text-center text-sm text-blue-600 hover:underline pt-2">Already have an account? Log in.</a>
         </div>
-        <script src="/js/app.js"></script>
-    </body>
+    </div>
+
+    <script>
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const errorMsg = document.getElementById('error-msg');
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert("Registration successful! Redirecting to login...");
+                    window.location.href = "/login";
+                } else {
+                    const text = await response.text();
+                    errorMsg.classList.remove('hidden');
+                    errorMsg.innerText = text || "Registration failed. Username might exist.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.classList.remove('hidden');
+                errorMsg.innerText = "Server connection error.";
+            }
+        }
+    </script>
+
+</body>
 </html>

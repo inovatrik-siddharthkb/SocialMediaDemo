@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${profileOwner.name} + ' (@' + ${profileOwner.username} + ')'">Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }</style>
+</head>
+<body>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a th:href="@{/feed}" class="flex items-center text-gray-600 hover:text-blue-600 font-medium transition">
+                <span data-lucide="arrow-left" class="w-5 h-5 mr-2"></span>
+                Back to Feed
+            </a>
+            <div class="flex space-x-4">
+                 <a th:if="${currentUser.username == profileOwner.username}" th:href="@{/logout}" class="text-red-500 hover:text-red-700 text-sm font-semibold">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-2xl mx-auto p-4 pt-6">
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6 text-center">
+            <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                <span class="font-bold text-blue-600 text-4xl" th:text="${#strings.substring(profileOwner.name,0,1)}">A</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900" th:text="${profileOwner.name}">User Name</h1>
+            <p class="text-gray-500 mb-4" th:text="'@' + ${profileOwner.username}">@username</p>
+
+            <div class="flex justify-center space-x-8 mb-6 border-t border-b py-4">
+                <div class="text-center">
+                    <span class="block font-bold text-gray-900" th:text="${posts.size()}">0</span>
+                    <span class="text-xs text-gray-500">Posts</span>
+                </div>
+                <div class="text-center">
+                    <span class="block font-bold text-gray-900" th:text="${profileOwner.followers.size()}">0</span>
+                    <span class="text-xs text-gray-500">Followers</span>
+                </div>
+                <div class="text-center">
+                    <span class="block font-bold text-gray-900" th:text="${profileOwner.following.size()}">0</span>
+                    <span class="text-xs text-gray-500">Following</span>
+                </div>
+            </div>
+
+            <div th:if="${currentUser.username != profileOwner.username}">
+                <form th:if="${!isFollowing}" th:action="@{/api/follow/{u}(u=${profileOwner.username})}" onsubmit="handleFollow(event)" class="inline-block">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition">Follow</button>
+                </form>
+                <form th:if="${isFollowing}" th:action="@{/api/follow/{u}(u=${profileOwner.username})}" onsubmit="handleFollow(event)" class="inline-block">
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <button type="submit" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-semibold hover:bg-gray-300 transition">Unfollow</button>
+                </form>
+            </div>
+            <div th:if="${currentUser.username == profileOwner.username}">
+                <span class="px-4 py-2 bg-gray-100 text-gray-500 rounded-full text-sm font-medium">Viewing Your Profile</span>
+            </div>
+        </div>
+
+        <h3 class="font-bold text-gray-700 mb-4 text-lg">Posts</h3>
+
+        <div class="space-y-5">
+            <div th:each="post : ${posts}" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <span class="font-bold text-blue-600 text-sm" th:text="${#strings.substring(post.author.name,0,1)}">A</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900 text-sm" th:text="${post.author.name}">Name</p>
+                            <p class="text-xs text-gray-500" th:text="${#dates.format(post.createdAt, 'MMM dd, HH:mm')}">Time</p>
+                        </div>
+                    </div>
+                    
+                    <button th:if="${currentUser.username == profileOwner.username}"
+                            th:onclick="'deletePost(' + ${post.id} + ')'"
+                            class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition" title="Delete Post">
+                        <span data-lucide="trash-2" class="w-5 h-5"></span>
+                    </button>
+                </div>
+
+                <div class="px-4 mb-3">
+                    <p class="text-gray-800" th:text="${post.text}">Content...</p>
+                </div>
+
+                <div th:if="${post.mediaList != null and !post.mediaList.empty}" class="w-full">
+                    <img th:src="@{${post.mediaList.get(0).url}}" class="w-full object-cover max-h-[500px]" th:if="${post.mediaList.get(0).type.name() == 'IMAGE'}">
+                </div>
+
+                <div class="px-4 py-2 text-gray-500 text-sm border-b border-gray-100 flex justify-between">
+                    <span th:text="${post.likeCount + ' Likes'}">0 Likes</span>
+                    <a th:href="@{/post/{id}(id=${post.id})}" class="hover:underline" th:text="${post.commentCount + ' Comments'}">0 Comments</a>
+                </div>
+                
+                <div class="flex justify-around p-2">
+                    <form th:action="@{/api/posts/{id}/like(id=${post.id})}" onsubmit="handleLike(event)" class="w-full">
+                        <input th:if="${post.isLiked}" type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" class="flex items-center justify-center space-x-2 w-full py-2 hover:bg-gray-50 rounded-lg transition" th:classappend="${post.isLiked} ? 'text-blue-600' : 'text-gray-600'">
+                            <span data-lucide="thumbs-up" class="w-5 h-5"></span>
+                            <span class="font-medium text-sm">Like</span>
+                        </button>
+                    </form>
+                    <a th:href="@{/post/{id}(id=${post.id})}" class="flex items-center justify-center space-x-2 w-full py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition">
+                        <span data-lucide="message-circle" class="w-5 h-5"></span>
+                        <span class="font-medium text-sm">Comment</span>
+                    </a>
+                </div>
+
+            </div>
+            
+             <div th:if="${posts.empty}" class="text-center py-10 text-gray-500">
+                <span data-lucide="camera-off" class="w-10 h-10 mx-auto mb-2 opacity-50"></span>
+                <p>No posts yet.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        async function handleFollow(event) {
+            event.preventDefault();
+            const form = event.target;
+            const action = form.getAttribute('action');
+            const methodInput = form.querySelector('input[name="_method"]');
+            const method = (methodInput && methodInput.value === 'DELETE') ? 'DELETE' : 'POST';
+
+            try {
+                const response = await fetch(action, { method: method });
+                if (response.ok) window.location.reload();
+                else alert("Action failed");
+            } catch (err) { console.error(err); }
+        }
+
+        async function handleLike(event) {
+            event.preventDefault();
+            const form = event.target;
+            const action = form.getAttribute('action');
+            const methodInput = form.querySelector('input[name="_method"]');
+            const method = (methodInput && methodInput.value === 'DELETE') ? 'DELETE' : 'POST';
+            try {
+                const response = await fetch(action, { method: method });
+                if (response.ok) window.location.reload();
+            } catch (err) { console.error(err); }
+        }
+
+        async function deletePost(postId) {
+            if (!confirm("Are you sure you want to delete this post? This cannot be undone.")) return;
+            try {
+                const response = await fetch('/api/posts/' + postId, { method: 'DELETE' });
+                if (response.ok) window.location.reload();
+                else alert("Failed to delete post.");
+            } catch (err) { 
+                console.error(err); 
+                alert("Error connecting to server.");
+            }
+        }
+    </script>
+</body>
+</html>

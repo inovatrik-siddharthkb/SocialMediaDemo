@@ -53,6 +53,21 @@ public class PostController {
 
         return ResponseEntity.ok(post);
     }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable Long id, Authentication auth) {
+        Post post = postRepo.findById(id).orElse(null);
+        if (post == null) return ResponseEntity.notFound().build();
+
+        User user = userRepo.findByUsername(auth.getName()).orElse(null);
+        
+        if (!post.getAuthor().equals(user)) {
+             return ResponseEntity.status(403).body("You are not allowed to delete this post");
+        }
+
+        postRepo.delete(post);
+        return ResponseEntity.ok("Deleted");
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPost(@PathVariable Long id) {
@@ -123,7 +138,7 @@ public class PostController {
         return ResponseEntity.ok(c);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId, Authentication auth) {
 
         Comment c = commentRepo.findById(commentId).orElse(null);

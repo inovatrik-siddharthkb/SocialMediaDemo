@@ -1,49 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8">
-  <title>Feed — Social</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/styles.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Feed</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
+        .navbar { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .post-card { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .icon-btn { @apply p-2 rounded-full transition-colors duration-200 hover:bg-gray-200; }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-light bg-white border-bottom">
-  <div class="container">
-    <a class="navbar-brand" href="/feed">Social</a>
-    <div>
-      <button id="btnLogout" class="btn btn-outline-secondary">Logout</button>
-    </div>
-  </div>
-</nav>
 
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card mb-3 p-3">
-        <form id="createPostForm" enctype="multipart/form-data">
-          <textarea id="postText" class="form-control mb-2" placeholder="What's happening?" rows="2"></textarea>
-          <input id="postFiles" type="file" name="files" multiple class="form-control mb-2">
-          <button class="btn btn-primary" type="submit">Post</button>
-        </form>
-      </div>
+    <nav class="navbar sticky top-0 bg-white z-50">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="flex justify-between items-center h-14">
+                <div class="flex items-center space-x-2">
+                    <div class="text-2xl font-bold text-blue-600">
+                        <span class="tracking-tight">SocialApp</span>
+                    </div>
 
-      <div id="feedContainer"></div>
-    </div>
+                    <form action="/search" method="GET" class="relative">
+                        <input type="text" name="query" placeholder="Search users..." 
+                               class="bg-gray-100 h-9 pl-9 pr-4 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-40 sm:w-64 transition-all">
+                        <span data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></span>
+                    </form>
 
-    <div class="col-md-4">
-      <div class="card p-3 mb-3">
-        <h6>Profile</h6>
-        <div id="profileBox"></div>
-      </div>
-      <div class="card p-3">
-        <h6>Suggestions</h6>
-        <ul id="suggestions"></ul>
-      </div>
-    </div>
-  </div>
-</div>
+                </div>
+                <div class="flex space-x-6">
+                    <a th:href="@{/feed}" class="icon-btn text-blue-600 bg-blue-50">
+                        <span data-lucide="home" class="w-6 h-6"></span>
+                    </a>
+                    <a th:href="@{/profile}" class="icon-btn text-gray-500">
+                        <span data-lucide="user" class="w-6 h-6"></span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="hidden sm:flex items-center space-x-2 p-1 rounded-full bg-gray-100 px-3 py-1">
+                        <span data-lucide="user" class="w-4 h-4 text-gray-600"></span>
+                        <span class="text-sm font-medium text-gray-700" th:text="${currentUser.name}">Me</span>
+                    </div>
+                    <a th:href="@{/logout}" class="icon-btn text-red-500" title="Logout">
+                        <span data-lucide="log-out" class="w-5 h-5"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-<script src="/js/app.js"></script>
+    <main class="max-w-2xl mx-auto p-4 pt-6">
+        
+        <div class="post-card bg-white rounded-xl p-4 mb-6">
+            <form id="createPostForm" onsubmit="handleCreatePost(event)" class="space-y-3">
+                <div class="flex items-center border-b pb-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-3 flex-shrink-0">
+                        <span data-lucide="pen-tool" class="w-5 h-5 text-gray-500"></span>
+                    </div>
+                    <textarea name="text" th:placeholder="'What\'s on your mind, ' + ${currentUser.name} + '?'" rows="1"
+                           class="flex-grow bg-gray-100 h-auto p-3 rounded-2xl text-sm focus:outline-none hover:bg-gray-200 transition resize-none"></textarea>
+                </div>
+                <div class="flex justify-between items-center px-2">
+                    <input type="file" name="files" id="file-upload" class="hidden" multiple accept="image/*,video/*,audio/*">
+                    <button type="button" onclick="document.getElementById('file-upload').click()" 
+                            class="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-lg transition">
+                        <span data-lucide="image" class="w-5 h-5 text-green-600"></span>
+                        <span class="text-sm font-medium">Add Photo</span>
+                    </button>
+                    <button type="submit" class="px-6 py-1.5 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition">
+                        Post
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="space-y-5">
+            <div th:each="post : ${posts}" class="post-card bg-white rounded-xl">
+                
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <a th:href="@{/user/{u}(u=${post.author.username})}" class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 hover:opacity-80 transition">
+                            <span class="font-bold text-blue-600 text-sm" th:text="${#strings.substring(post.author.name,0,1)}">A</span>
+                        </a>
+                        <div>
+                            <a th:href="@{/user/{u}(u=${post.author.username})}" class="font-semibold text-gray-900 text-sm hover:underline" th:text="${post.author.name}">User Name</a>
+                            <p class="text-xs text-gray-500" th:text="${#dates.format(post.createdAt, 'MMM dd, HH:mm')}">Time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-4 mb-3">
+                    <p class="text-gray-800 text-base leading-relaxed" th:text="${post.text}">Content...</p>
+                </div>
+
+                <div th:if="${post.mediaList != null and !post.mediaList.empty}" class="w-full">
+                    <img th:src="@{${post.mediaList.get(0).url}}" 
+                         class="w-full object-cover max-h-[500px]" 
+                         alt="Post Media" 
+                         th:if="${post.mediaList.get(0).type.name() == 'IMAGE'}">
+                </div>
+
+                <div class="px-4 py-2 text-gray-500 text-sm flex justify-between border-b border-gray-100">
+                    <span th:text="${post.likeCount + ' Likes'}">0 Likes</span>
+                    <a th:href="@{/post/{id}(id=${post.id})}" class="hover:underline" th:text="${post.commentCount + ' Comments'}">0 Comments</a>
+                </div>
+
+                <div class="flex justify-around p-2">
+                    <form th:action="@{/api/posts/{id}/like(id=${post.id})}" 
+                          onsubmit="handleLike(event)" 
+                          class="w-full">
+                        <input th:if="${post.isLiked}" type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" class="flex items-center justify-center space-x-2 w-full py-2 hover:bg-gray-50 rounded-lg transition" th:classappend="${post.isLiked} ? 'text-blue-600' : 'text-gray-600'">
+                            <span data-lucide="thumbs-up" class="w-5 h-5"></span>
+                            <span class="font-medium text-sm">Like</span>
+                        </button>
+                    </form>
+                    
+                    <a th:href="@{/post/{id}(id=${post.id})}" class="flex items-center justify-center space-x-2 w-full py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition">
+                        <span data-lucide="message-circle" class="w-5 h-5"></span>
+                        <span class="font-medium text-sm">Comment</span>
+                    </a>
+                </div>
+
+            </div>
+            
+            <div th:if="${posts.empty}" class="text-center py-10 text-gray-500">
+                <span data-lucide="coffee" class="w-10 h-10 mx-auto mb-2 opacity-50"></span>
+                <p>No posts yet. Be the first to share something!</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        document.querySelector('textarea').addEventListener('input', function() {
+            this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        async function handleLike(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const action = form.getAttribute('action');
+            
+            const methodInput = form.querySelector('input[name="_method"]');
+            const method = (methodInput && methodInput.value === 'DELETE') ? 'DELETE' : 'POST';
+
+            try {
+                const response = await fetch(action, { method: method });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.error('Failed to toggle like');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function handleCreatePost(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to create post');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
 </body>
 </html>

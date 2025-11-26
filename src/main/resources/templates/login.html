@@ -1,38 +1,77 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8">
-  <title>Login — Social</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/styles.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to SocialApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
+        .login-card { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1); }
+    </style>
 </head>
-<body class="bg-light">
-  <div class="container">
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-6 col-lg-4">
-        <div class="card p-4">
-          <h3 class="card-title text-center">Welcome back</h3>
-          <div id="alert" class="alert d-none"></div>
-          <form id="loginForm">
-            <div class="mb-3">
-              <input id="username" class="form-control" placeholder="Username" required>
-            </div>
-            <div class="mb-3">
-              <input id="password" type="password" class="form-control" placeholder="Password" required>
-            </div>
-            <button class="btn btn-primary w-100" type="submit">Login</button>
-          </form>
+<body class="flex items-center justify-center min-h-screen">
 
-          <hr>
-          <div class="text-center">
-            <a href="/register">Create account</a>
-          </div>
+    <div class="max-w-md w-full p-4 md:p-8">
+        <h1 class="text-6xl font-extrabold text-blue-600 mb-6 text-center">SocialApp</h1>
+        <p class="text-2xl text-center text-gray-700 mb-8">Connect with friends and the world around you on SocialApp.</p>
+
+        <div class="login-card bg-white rounded-xl p-6 space-y-4">
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <input type="text" id="username" name="username" placeholder="Username" required
+                       class="w-full h-12 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
+                <input type="password" id="password" name="password" placeholder="Password" required
+                       class="w-full h-12 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
+                
+                <button type="submit"
+                        class="w-full h-12 bg-blue-600 text-white font-bold text-xl rounded-lg hover:bg-blue-700 transition duration-150">
+                    Log In
+                </button>
+                <p id="error-msg" class="text-red-500 text-center text-sm hidden">Invalid Credentials</p>
+            </form>
+
+            <div class="h-px bg-gray-200"></div>
+
+            <a th:href="@{/register}"
+               class="block text-center w-3/4 mx-auto py-3 bg-green-500 text-white font-bold text-lg rounded-lg hover:bg-green-600 transition duration-150">
+                Create New Account
+            </a>
         </div>
-      </div>
     </div>
-  </div>
 
-  <script src="/js/app.js"></script>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            try {
+                // 1. Send JSON request
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, password: password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.cookie = `token=${data.token}; path=/; max-age=86400`;
+
+                    window.location.href = "/feed";
+                } else {
+                    errorMsg.classList.remove('hidden');
+                    errorMsg.innerText = "Login failed! Check your credentials.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.classList.remove('hidden');
+                errorMsg.innerText = "Server error. Please try again.";
+            }
+        }
+    </script>
+
 </body>
 </html>
